@@ -8,6 +8,7 @@ import data
 import numpy as np
 # Import pyplot - plt.imshow is useful!
 import matplotlib.pyplot as plt
+from sklearn.model_selection import KFold
 
 class KNearestNeighbor(object):
     '''
@@ -43,7 +44,21 @@ class KNearestNeighbor(object):
 
         You should return the digit label provided by the algorithm
         '''
-        digit = None
+
+        labels_list = self.train_labels.tolist()
+        distance_list = self.l2_distance(test_point).tolist()
+        z = sorted(zip(distance_list, labels_list))
+        # ???
+        # sorted_test_points = [x for x,_ in z]
+        sorted_labels = [y for _,y in z]
+
+        labels = sorted_labels[:k]
+        count = 0
+        for l in set(labels):
+            cur_count = labels.count(l)
+            if count < cur_count:
+                count = cur_count
+                digit = l
         return digit
 
 def cross_validation(train_data, train_labels, k_range=np.arange(1,16)):
@@ -54,25 +69,52 @@ def cross_validation(train_data, train_labels, k_range=np.arange(1,16)):
     The intention was for students to take the training data from the knn object - this should be clearer
     from the new function signature.
     '''
+    all_accuracy = []
     for k in k_range:
         # Loop over folds
         # Evaluate k-NN
         # ...
-        pass
+        # print("k: ", k)
+        cur_accuracy = []
+        kf = KFold(n_splits=10, shuffle=True)
+        for train_index, test_index in kf.split(train_data, train_labels):
+            tr_data = np.array([train_data[i] for i in train_index])
+            tr_label = np.array([train_labels[i] for i in train_index])
+            te_data = np.array([train_data[i] for i in test_index])
+            te_label = np.array([train_labels[i] for i in test_index])
+            knn = KNearestNeighbor(tr_data, tr_label)
+            cur_accuracy.append(classification_accuracy(knn, k, te_data, te_label))
+        all_accuracy.append(cur_accuracy)
+        print("cur_accuracy: ", cur_accuracy)
+    print("all_accuracy: ", all_accuracy)
+        
+
 
 def classification_accuracy(knn, k, eval_data, eval_labels):
     '''
     Evaluate the classification accuracy of knn on the given 'eval_data'
     using the labels
     '''
-    pass
+    score = 0
+    amount = len(eval_data)
+    for i in range(amount):
+        if(eval_labels[i] == knn.query_knn(eval_data[i], k)):
+            score += 1
+    return score / amount
+    
 
 def main():
+    print("Enter main.")
     train_data, train_labels, test_data, test_labels = data.load_all_data('data')
     knn = KNearestNeighbor(train_data, train_labels)
 
     # Example usage:
-    predicted_label = knn.query_knn(test_data[0], 1)
+    # predicted_label = knn.query_knn(test_data[0], 1)
+    print("classification_accuracy for k=1")
+    print(classification_accuracy(knn, 1, test_data, test_labels))
+    print("classification_accuracy for k=15")
+    print(classification_accuracy(knn, 15, test_data, test_labels))
+    cross_validation(train_data, train_labels)
 
 if __name__ == '__main__':
     main()
