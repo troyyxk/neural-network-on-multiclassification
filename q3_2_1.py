@@ -30,9 +30,10 @@ class Net(nn.Module):
         x= torch.relu(self.fc1(x))
         x= torch.relu(self.fc2(x))
         x= torch.relu(self.fc3(x))
-        x= self.fc4(x)
+        x= torch.relu(self.fc4(x))
         
-        return F.softmax(x, dim=1)
+        return x
+        # return F.softmax(x, dim=1)
 
 
 def classification_accuracy(knn, k, eval_data, eval_labels):
@@ -81,14 +82,17 @@ def main():
     test_data_tensor = torch.from_numpy(test_data)
 
     net = Net()
+    # net.train()
     net = net.float()
-    optimizer = optim.Adam(net.parameters(), lr = 0.01)
+    # optimizer = optim.Adam(net.parameters(), lr = 0.5)
+    optimizer = optim.SGD(net.parameters(), lr=0.15,momentum=0.5)
+
 #     optimizer.zero_grad()
 
 #     criterion = nn.CrossEntropyLoss()
 
     # train 3 times
-    for _ in range(3):
+    for _ in range(1000):
         for i in range(len(train_data_tensor)):
             net.zero_grad()
             output = net(train_data_tensor[i].view(-1, 64).float())
@@ -103,16 +107,6 @@ def main():
     print(classification_accuracy(net, train_data_tensor, train_labels))
     print(classification_accuracy(net, test_data_tensor, test_labels))
             
-    
-            
-            
-# #     print(train_data_tensor.float())
-#     outputs = net(train_data_tensor.float())
-#     print(outputs)
-#     loss = F.mse_loss(outputs, train_labels_tensor)
-#     loss.backward()
-#     optimizer.step()
-    
     
 
 

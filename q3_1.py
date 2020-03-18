@@ -76,6 +76,8 @@ def cross_validation(train_data, train_labels, k_range=np.arange(1,16)):
         # ...
         # print("k: ", k)
         cur_accuracy = []
+        sum = 0
+        num = 0
         kf = KFold(n_splits=10, shuffle=True)
         for train_index, test_index in kf.split(train_data, train_labels):
             tr_data = np.array([train_data[i] for i in train_index])
@@ -83,10 +85,15 @@ def cross_validation(train_data, train_labels, k_range=np.arange(1,16)):
             te_data = np.array([train_data[i] for i in test_index])
             te_label = np.array([train_labels[i] for i in test_index])
             knn = KNearestNeighbor(tr_data, tr_label)
-            cur_accuracy.append(classification_accuracy(knn, k, te_data, te_label))
+            accuracy = classification_accuracy(knn, k, te_data, te_label)
+            cur_accuracy.append(accuracy)
+            sum += accuracy
+            num += 1
+        print("k= ", k, ", accuracy = " ,sum/num)
         all_accuracy.append(cur_accuracy)
-        print("cur_accuracy: ", cur_accuracy)
-    print("all_accuracy: ", all_accuracy)
+        # print("cur_accuracy: ", cur_accuracy)
+    # print("all_accuracy: ", all_accuracy)
+    print 
         
 
 
@@ -110,11 +117,17 @@ def main():
 
     # Example usage:
     # predicted_label = knn.query_knn(test_data[0], 1)
-    print("classification_accuracy for k=1")
+    print("Test accuracy for k=1")
     print(classification_accuracy(knn, 1, test_data, test_labels))
-    print("classification_accuracy for k=15")
+    print("Train accuracy for k=1")
+    print(classification_accuracy(knn, 1, train_data, train_labels))
+    print("Test accuracy for k=15")
     print(classification_accuracy(knn, 15, test_data, test_labels))
+    print("Train accuracy for k=15")
+    print(classification_accuracy(knn, 15, train_data, train_labels))
     cross_validation(train_data, train_labels)
+    cross_validation(test_data, test_labels)
+
 
 if __name__ == '__main__':
     main()
