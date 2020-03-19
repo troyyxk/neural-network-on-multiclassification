@@ -64,16 +64,15 @@ def main():
     train_data, train_labels, test_data, test_labels = data.load_all_data('data')
 
     clf = LinearSVC(random_state=0, tol=1e-5)
-    model_fited = clf.fit(train_data, train_labels)
+    clf.fit(train_data, train_labels)
 
     prediction = clf.predict(test_data)
+    # prediction_oh = clf.predict_proba(test_data)  # (#, 10), for each
+    # prediction_oh = clf.predict(test_data)
+    prediction_oh = clf.decision_function(test_data)
     y_test = labels_to_one_hot(test_labels)
 
-    # prediction_proba = clf.predict_proba(test_data)  # (#, 10), for each
-    # prediction_proba = clf.predict(test_data)
-    prediction_proba = clf.decision_function(test_data)
-
-    plot_roc(y_test, prediction_proba)
+    plot_roc(y_test, prediction_oh)
 
     print("Accuracy: ", clf.score(test_data, test_labels))
     print("confusion matrix: ")

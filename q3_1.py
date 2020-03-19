@@ -143,7 +143,7 @@ def plot_roc(y_test, y_score):
     plt.legend(loc="lower right")
     plt.show()
 
-def cross_validation(train_data, train_labels, k_range=np.arange(1,16)):
+def cross_validation(train_data, train_labels, k):
     '''
     Perform 10-fold cross validation to find the best value for k
 
@@ -151,31 +151,25 @@ def cross_validation(train_data, train_labels, k_range=np.arange(1,16)):
     The intention was for students to take the training data from the knn object - this should be clearer
     from the new function signature.
     '''
-    all_accuracy = []
-    for k in k_range:
-        # Loop over folds
-        # Evaluate k-NN
-        # ...
-        # print("k: ", k)
-        cur_accuracy = []
-        sum = 0
-        num = 0
-        kf = KFold(n_splits=10, shuffle=True)
-        for train_index, test_index in kf.split(train_data, train_labels):
-            tr_data = np.array([train_data[i] for i in train_index])
-            tr_label = np.array([train_labels[i] for i in train_index])
-            te_data = np.array([train_data[i] for i in test_index])
-            te_label = np.array([train_labels[i] for i in test_index])
-            knn = KNearestNeighbor(tr_data, tr_label)
-            accuracy = classification_accuracy(knn, k, te_data, te_label)
-            cur_accuracy.append(accuracy)
-            sum += accuracy
-            num += 1
-        print("k= ", k, ", accuracy = " ,sum/num)
-        all_accuracy.append(cur_accuracy)
-        # print("cur_accuracy: ", cur_accuracy)
-    # print("all_accuracy: ", all_accuracy)
-    # print 
+    # Loop over folds
+    # Evaluate k-NN
+    # ...
+    # print("k: ", k)
+    cur_accuracy = []
+    sum = 0
+    num = 0
+    kf = KFold(n_splits=10, shuffle=True)
+    for train_index, test_index in kf.split(train_data, train_labels):
+        tr_data = np.array([train_data[i] for i in train_index])
+        tr_label = np.array([train_labels[i] for i in train_index])
+        te_data = np.array([train_data[i] for i in test_index])
+        te_label = np.array([train_labels[i] for i in test_index])
+        knn = KNearestNeighbor(tr_data, tr_label)
+        accuracy = classification_accuracy(knn, k, te_data, te_label)
+        cur_accuracy.append(accuracy)
+        sum += accuracy
+        num += 1
+    print("10 foled average accuracy = " ,sum/num)
 
 
 def classification_accuracy(knn, k, eval_data, eval_labels):
@@ -206,8 +200,11 @@ def main():
     print(classification_accuracy(knn, 15, test_data, test_labels))
     print("Train accuracy for k=15")
     print(classification_accuracy(knn, 15, train_data, train_labels))
-    cross_validation(train_data, train_labels)
-    cross_validation(test_data, test_labels)
+    for k in range(1, 16):
+        print("k=", k)
+        print("Test accuracy:", classification_accuracy(knn, k, test_data, test_labels))
+        print("Train accuracy:", classification_accuracy(knn, k, train_data, train_labels))
+        cross_validation(train_data, train_labels, k)
 
     prediction = predict(knn, 3, test_data, test_labels)
     prediction_proba = labels_to_one_hot(prediction)

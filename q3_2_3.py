@@ -69,10 +69,10 @@ def main():
     clf.fit(train_data, train_labels)
 
     prediction = clf.predict(test_data)
-
-    prediction_proba = clf.predict_proba(test_data)  # (#, 10), for each
+    prediction_oh = clf.predict_proba(test_data)  # (#, 10), for each
     y_test = labels_to_one_hot(test_labels)
-    plot_roc(y_test, prediction_proba)
+    
+    plot_roc(y_test, prediction_oh)
 
     print("Accuracy: ", clf.score(test_data, test_labels))
     print("confusion matrix: ")

@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import KFold
 import torch
 import torch.nn as nn
+from torch import no_grad
 import torch.nn.functional as F
 import torch.optim as optim
 import matplotlib.pyplot as plt
@@ -117,19 +118,19 @@ def one_hot_to_label(prediction):
         result.append(cur)
     return result
 
-def classification_accuracy(net, data_tensor, labels_tensor):
+def classification_accuracy(net, data_tensor, labels):
     '''
     Evaluate the classification accuracy of knn on the given 'eval_data'
     using the labels
     '''
     score = 0
     amount = len(data_tensor)
-    print(amount)
+    # print(amount)
     prediction = net(data_tensor.float())
     prediction = one_hot_to_label(prediction)
     for i in range(amount):
-        if prediction[i] == torch.max(labels_tensor, 1)[1].tolist()[i]:
-            score = score + 1
+        if prediction[i] == labels[i]:
+            score += 1
     return prediction, score / amount
 
 
@@ -144,8 +145,8 @@ def main():
     test_labels_tensor = labels_to_one_hot(test_labels)
     X_test = torch.from_numpy(train_labels)
     y_test = labels_to_one_hot_np(test_labels)
-    print(train_labels_tensor.shape)
-    print(test_labels_tensor.shape)
+    # print(train_labels_tensor.shape)
+    # print(test_labels_tensor.shape)
 
     net = Net()
     # net.train()
@@ -153,38 +154,36 @@ def main():
 #     optimizer = optim.Adam(net.parameters(), lr = 0.15)
 #     optimizer = optim.SGD(net.parameters(), lr=0.15,momentum=0.9)
     optimizer = optim.SGD(net.parameters(), lr=0.15,momentum=0.5)
-
     loss_func = nn.CrossEntropyLoss()
-    # train 1000 times
-    for _ in range(5000):
+
+    # train 10000 times
+    for _ in range(10000):
         print(_)
         optimizer.zero_grad()
         output = net(train_data_tensor.float())
-#         print(X_test ==  torch.max(train_labels_tensor,1)[1])
         loss = loss_func(output, X_test.long())
         loss.backward()
         optimizer.step()
 
-    with torch.no_grad():
-        _, accuracy = classification_accuracy(net, train_data_tensor, train_labels_tensor)
+    with no_grad():
+        _, accuracy = classification_accuracy(net, train_data_tensor, train_labels)
         print("Train accuracy: ", accuracy)
 
-    with torch.no_grad():
-        prediction, accuracy = classification_accuracy(net, test_data_tensor, test_labels_tensor)
+    with no_grad():
+        prediction, accuracy = classification_accuracy(net, test_data_tensor, test_labels)
         print("Test accuracy: ", accuracy)
 
-    prediction_proba = net(test_data_tensor.float())
-    print("y_test", type(y_test), y_test.shape)
-    print(y_test)
-    print("prediction_proba", type(prediction_proba), prediction_proba.shape)
-    print(prediction_proba)
-    plot_roc(y_test, prediction_proba.detach().numpy())
+    prediction_oh = net(test_data_tensor.float())
+    # print("y_test", type(y_test), y_test.shape)
+    # print(y_test)
+    # print("prediction_oh", type(prediction_oh), prediction_oh.shape)
+    # print(prediction_oh)
+    plot_roc(y_test, prediction_oh.detach().numpy())
 
     print("confusion matrix: ")
     print(confusion_matrix(test_labels, prediction))
     print("Precision: ", precision_score(test_labels, prediction, average='macro'))
     print("Recall: ", recall_score(test_labels, prediction, average='macro'))
-
             
 
 if __name__ == '__main__':
