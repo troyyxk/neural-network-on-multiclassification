@@ -5,7 +5,17 @@ from sklearn.model_selection import KFold
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, roc_curve
 import matplotlib.pyplot as plt
+
 from sklearn.metrics import roc_curve, auc
+from itertools import cycle
+from sklearn import svm, datasets
+from sklearn.metrics import roc_curve, auc
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import label_binarize
+from sklearn.multiclass import OneVsRestClassifier
+from scipy import interp
+from sklearn.metrics import roc_auc_score
+
 
 def labels_to_one_hot(labels):
     targets = []

@@ -6,6 +6,14 @@ from sklearn.svm import LinearSVC
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, roc_curve
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc
+from itertools import cycle
+from sklearn import svm, datasets
+from sklearn.metrics import roc_curve, auc
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import label_binarize
+from sklearn.multiclass import OneVsRestClassifier
+from scipy import interp
+from sklearn.metrics import roc_auc_score
 
 def labels_to_one_hot(labels):
     targets = []
@@ -47,7 +55,7 @@ def plot_roc(y_test, y_score):
     plt.ylim([0.0, 1.05])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title('ROC graph of Adaboost')
+    plt.title('ROC graph of SVC')
     plt.legend(loc="lower right")
     plt.show()
 
@@ -56,13 +64,14 @@ def main():
     train_data, train_labels, test_data, test_labels = data.load_all_data('data')
 
     clf = LinearSVC(random_state=0, tol=1e-5)
-    clf.fit(train_data, train_labels)
+    model_fited = clf.fit(train_data, train_labels)
 
     prediction = clf.predict(test_data)
     y_test = labels_to_one_hot(test_labels)
 
     # prediction_proba = clf.predict_proba(test_data)  # (#, 10), for each
-    prediction_proba = clf.fit(train_data, train_labels).decision_function(test_data)
+    # prediction_proba = clf.predict(test_data)
+    prediction_proba = clf.decision_function(test_data)
 
     plot_roc(y_test, prediction_proba)
 
