@@ -158,7 +158,7 @@ def main():
 
     # train 10000 times
     for _ in range(10000):
-        # print(_)
+        print(_)
         optimizer.zero_grad()
         output = net(train_data_tensor.float())
         loss = loss_func(output, X_test.long())
